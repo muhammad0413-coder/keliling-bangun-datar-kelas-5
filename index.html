@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Petualangan Matematika Kelas 5 - Bab 4</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #e0f2fe; /* light blue */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden; /* Prevent native scroll, handle inside app */
+        }
+
+        /* Fun Background Pattern */
+        .bg-pattern {
+            background-image: radial-gradient(#bae6fd 20%, transparent 20%), radial-gradient(#bae6fd 20%, transparent 20%);
+            background-color: #e0f2fe;
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+        }
+
+        /* Screen Management */
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto; overflow-x: hidden;}
+        .screen.active { display: flex; }
+
+        /* Custom Buttons */
+        .btn-game {
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .btn-game:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px !important;
+            margin-top: 4px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Interactive Video styles */
+        .video-progress-bar { transition: width 0.2s linear; }
+    </style>
+</head>
+<body class="bg-pattern w-screen h-screen flex justify-center items-center p-0 md:p-4">
+
+    <!-- Main App Container -->
+    <div id="app-container" class="w-full h-full max-w-4xl bg-white md:rounded-3xl shadow-2xl relative overflow-hidden flex flex-col border-0 md:border-8 border-white/50">
+        
+        <!-- Global Header (Hidden on splash/register) -->
+        <header id="app-header" class="hidden shrink-0 h-16 bg-blue-500 text-white flex justify-between items-center px-4 md:px-6 shadow-md z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="nav('home')" class="btn-game w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center border-b-4 border-blue-800 text-xl">
+                    <i class="fas fa-home"></i>
+                </button>
+                <h1 class="font-bold text-lg md:text-xl truncate">Petualangan Matematika</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-700 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                    <i class="fas fa-user-astronaut text-yellow-300"></i>
+                    <span id="display-username">Siswa</span>
+                </div>
+                <button onclick="toggleAudio()" id="btn-audio" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 relative w-full h-full bg-slate-50">
+            
+            <!-- 1. SPLASH SCREEN -->
+            <div id="screen-splash" class="screen active bg-gradient-to-b from-blue-400 to-blue-600 justify-center items-center text-white">
+                <div class="animate-float text-center">
+                    <div class="text-7xl mb-4">🚀</div>
+                    <h1 class="text-4xl md:text-5xl font-black mb-2 drop-shadow-lg">Petualangan<br>Matematika</h1>
+                    <p class="text-xl font-semibold text-yellow-200">Kelas 5 - Bab 4</p>
+                    <div class="mt-8">
+                        <i class="fas fa-spinner fa-spin text-4xl"></i>
+                        <p class="mt-2 text-sm font-bold">Memuat...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. REGISTER SCREEN -->
+            <div id="screen-register" class="screen bg-blue-50 justify-center items-center p-6">
+                <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center animate-pop">
+                    <div class="text-6xl mb-4">👋</div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Halo, Sobat Pintar!</h2>
+                    <p class="text-slate-500 mb-6 text-sm">Siapa namamu? Mari mulai petualangan belajar kita!</p>
+                    
+                    <input type="text" id="input-name" placeholder="Ketik nama kamu di sini..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none mb-6 text-center font-bold text-lg text-slate-700">
+                    
+                    <button onclick="registerUser()" class="btn-game w-full bg-yellow-400 text-yellow-900 font-black text-lg py-3 rounded-2xl border-b-4 border-yellow-600">
+                        MULAI PETUALANGAN <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. HOME SCREEN -->
+            <div id="screen-home" class="screen bg-slate-50 p-4 md:p-8">
+                <div class="text-center mb-8 mt-4">
+                    <h2 class="text-3xl font-black text-slate-800 mb-2">Pilih Tujuanmu!</h2>
+                    <p class="text-slate-500">Belajar Seru, Menonton, Berpikir, dan Bermain!</p>
+                </div>
+                
+                <div class="flex flex-col gap-4 max-w-xl mx-auto items-center w-full" id="home-main-actions">
+                    <!-- Tombol Mulai akan diinjeksi oleh JS secara dinamis (Video atau Game) -->
+                </div>
+
+                <!-- Secondary Menu -->
+                <div class="grid grid-cols-3 gap-4 max-w-xl mx-auto mt-8 border-t-2 border-slate-200 pt-8">
+                    <div onclick="nav('materi')" class="btn-game bg-white p-4 rounded-3xl shadow-sm border-b-4 border-slate-200 text-center hover:bg-blue-50">
+                        <div class="text-2xl text-blue-500 mb-2"><i class="fas fa-book-open"></i></div>
+                        <div class="text-xs font-bold text-slate-700">Materi</div>
+                    </div>
+                    <div onclick="showHasil()" class="btn-game bg-white p-4 rounded-3xl shadow-sm border-b-4 border-slate-200 text-center hover:bg-green-50">
+                        <div class="text-2xl text-green-500 mb-2"><i class="fas fa-trophy"></i></div>
+                        <div class="text-xs font-bold text-slate-700">Hasil</div>
+                    </div>
+                    <div onclick="nav('petunjuk')" class="btn-game bg-white p-4 rounded-3xl shadow-sm border-b-4 border-slate-200 text-center hover:bg-pink-50">
+                        <div class="text-2xl text-pink-500 mb-2"><i class="fas fa-question-circle"></i></div>
+                        <div class="text-xs font-bold text-slate-700">Petunjuk</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. MATERI SCREEN -->
+            <div id="screen-materi" class="screen bg-slate-50 p-4 md:p-8">
+                <div class="max-w-2xl mx-auto w-full">
+                    <h2 class="text-2xl font-black text-center text-blue-700 mb-6 bg-blue-100 py-3 rounded-2xl">Buku Materi: Keliling Bangun Datar</h2>
+                    
+                    <div class="bg-white rounded-3xl p-6 mb-4 shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-info-circle text-blue-500"></i> Apa itu Keliling?</h3>
+                        <p class="text-slate-600 leading-relaxed">Keliling adalah jumlah panjang <strong>seluruh sisi terluar</strong> dari suatu bangun datar. Bayangkan kamu sedang berjalan kaki mengelilingi lapangan bola tepat di garis pinggirnya, jarak yang kamu tempuh itulah kelilingnya!</p>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 mb-4 shadow-sm border border-slate-100 flex gap-4 items-center">
+                        <div class="w-20 h-20 bg-green-100 text-green-600 flex justify-center items-center text-4xl rounded-xl shrink-0">🔺</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 mb-1">1. Segitiga</h3>
+                            <p class="text-slate-600 text-sm mb-1">Memiliki 3 sisi. Rumus Keliling:</p>
+                            <div class="bg-green-50 px-3 py-1 inline-block rounded-lg font-bold text-green-700">K = Sisi A + Sisi B + Sisi C</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 mb-4 shadow-sm border border-slate-100 flex gap-4 items-center">
+                        <div class="w-20 h-20 bg-yellow-100 text-yellow-600 flex justify-center items-center text-4xl rounded-xl shrink-0">🟩</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 mb-1">2. Persegi</h3>
+                            <p class="text-slate-600 text-sm mb-1">Memiliki 4 sisi sama panjang. Rumus Keliling:</p>
+                            <div class="bg-yellow-50 px-3 py-1 inline-block rounded-lg font-bold text-yellow-700">K = 4 x sisi</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 mb-8 shadow-sm border border-slate-100 flex gap-4 items-center">
+                        <div class="w-20 h-12 bg-blue-100 text-blue-600 flex justify-center items-center text-2xl rounded-xl shrink-0 border-2 border-blue-400"></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 mb-1">3. Persegi Panjang</h3>
+                            <p class="text-slate-600 text-sm mb-1">Memiliki 2 sisi panjang (p) dan 2 sisi lebar (l). Rumus:</p>
+                            <div class="bg-blue-50 px-3 py-1 inline-block rounded-lg font-bold text-blue-700">K = 2 x (panjang + lebar)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="nav('video')" class="btn-game w-full bg-blue-500 text-white font-black text-lg py-4 rounded-2xl border-b-4 border-blue-700 mb-8">
+                        LANJUT TONTON VIDEO <i class="fas fa-video ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. VIDEO INTERAKTIF SCREEN -->
+            <div id="screen-video" class="screen bg-slate-900 justify-center items-center p-0 md:p-4">
+                <div class="w-full max-w-3xl bg-black md:rounded-2xl overflow-hidden shadow-2xl relative aspect-video flex flex-col">
+                    <!-- Video Screen Area -->
+                    <div id="video-display" class="flex-1 relative flex justify-center items-center bg-gradient-to-br from-blue-300 to-blue-500 p-6">
+                        
+                        <!-- Characters and Visuals -->
+                        <div id="video-visuals" class="absolute inset-0 flex justify-center items-center opacity-0 transition-opacity duration-500">
+                            <!-- Injected by JS -->
+                        </div>
+
+                        <!-- Subtitles -->
+                        <div id="video-subtitle" class="absolute bottom-6 left-6 right-6 bg-black/70 text-white text-center p-3 rounded-xl text-lg md:text-xl font-bold shadow-lg hidden">
+                            <!-- Text injected here -->
+                        </div>
+
+                        <!-- Interactive Overlay -->
+                        <div id="video-overlay" class="absolute inset-0 bg-black/80 z-10 hidden flex-col justify-center items-center p-6 text-center">
+                            <h3 id="vo-question" class="text-white text-2xl font-bold mb-6">Pertanyaan Interaktif</h3>
+                            <div id="vo-options" class="w-full max-w-md flex flex-col gap-3">
+                                <!-- Buttons injected here -->
+                            </div>
+                        </div>
+                        
+                        <!-- End Video Overlay -->
+                        <div id="video-end-overlay" class="absolute inset-0 bg-blue-600 z-30 hidden flex-col justify-center items-center p-6 text-center animate-pop">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-white text-xl md:text-2xl font-black mb-2 leading-snug">HEBAT! KAMU SUDAH SELESAI MENONTON VIDEO PEMBELAJARAN.</h3>
+                            <p class="text-blue-200 font-bold mb-6 text-base">SEKARANG SAATNYA MENGUJI KEMAMPUANMU!</p>
+                            <button onclick="nav('games-menu')" class="btn-game w-full max-w-sm bg-yellow-400 text-yellow-900 font-black text-xl py-4 rounded-2xl border-b-4 border-yellow-600 shadow-xl">
+                                LANJUT KE PERMAINAN <i class="fas fa-gamepad ml-2"></i>
+                            </button>
+                            <button onclick="nav('home'); stopVideo();" class="mt-6 text-blue-200 font-bold hover:text-white underline">Kembali ke Beranda</button>
+                        </div>
+
+                        <!-- Initial Play Button -->
+                        <button id="video-start-btn" onclick="startVideo()" class="btn-game w-24 h-24 bg-yellow-400 rounded-full flex justify-center items-center text-4xl text-yellow-900 border-b-4 border-yellow-600 z-20 shadow-2xl animate-pop">
+                            <i class="fas fa-play ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- Video Controls -->
+                    <div class="h-16 bg-slate-800 px-4 flex items-center gap-4 text-white">
+                        <button id="video-playpause" onclick="toggleVideoPlay()" class="hover:text-yellow-400 text-xl w-8"><i class="fas fa-pause"></i></button>
+                        <div class="flex-1 h-3 bg-slate-600 rounded-full overflow-hidden relative cursor-pointer" onclick="seekVideo(event)">
+                            <div id="video-progress" class="h-full bg-yellow-400 video-progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <span id="video-time" class="text-sm font-mono font-bold w-12 text-right">00:00</span>
+                    </div>
+                </div>
+                <button onclick="nav('home'); stopVideo();" class="mt-6 text-slate-400 font-bold hover:text-white"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
+            </div>
+
+            <!-- 6. GAMES MENU SCREEN -->
+            <div id="screen-games-menu" class="screen bg-slate-50 p-4 md:p-8">
+                <div class="text-center mb-8 mt-4">
+                    <h2 class="text-3xl font-black text-slate-800 mb-2">Zona Bermain 🎮</h2>
+                    <p class="text-slate-500">Pilih permainan dan kumpulkan bintang sebanyak-banyaknya!</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto pb-10">
+                    
+                    <button onclick="startGame(1)" class="btn-game bg-white border-2 border-slate-200 rounded-3xl p-4 flex gap-4 text-left hover:border-blue-500">
+                        <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-2xl flex justify-center items-center text-3xl shrink-0">1</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Petualangan Pilih Jawaban</h3>
+                            <p class="text-sm text-slate-500 mb-2">Kuis pilihan ganda seru.</p>
+                            <div class="text-xs font-bold text-yellow-500" id="score-g1">Skor Tertinggi: 0</div>
+                        </div>
+                    </button>
+
+                    <button onclick="startGame(2)" class="btn-game bg-white border-2 border-slate-200 rounded-3xl p-4 flex gap-4 text-left hover:border-green-500">
+                        <div class="w-16 h-16 bg-green-100 text-green-500 rounded-2xl flex justify-center items-center text-3xl shrink-0">2</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Pasangkan Jawaban</h3>
+                            <p class="text-sm text-slate-500 mb-2">Cari pasangan yang tepat.</p>
+                            <div class="text-xs font-bold text-yellow-500" id="score-g2">Skor Tertinggi: 0</div>
+                        </div>
+                    </button>
+
+                    <button onclick="startGame(3)" class="btn-game bg-white border-2 border-slate-200 rounded-3xl p-4 flex gap-4 text-left hover:border-purple-500">
+                        <div class="w-16 h-16 bg-purple-100 text-purple-500 rounded-2xl flex justify-center items-center text-3xl shrink-0">3</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Misi Matematika</h3>
+                            <p class="text-sm text-slate-500 mb-2">Selesaikan level demi level.</p>
+                            <div class="text-xs font-bold text-yellow-500" id="score-g3">Level Terbuka: 1/3</div>
+                        </div>
+                    </button>
+
+                    <button onclick="startGame(4)" class="btn-game bg-white border-2 border-slate-200 rounded-3xl p-4 flex gap-4 text-left hover:border-pink-500">
+                        <div class="w-16 h-16 bg-pink-100 text-pink-500 rounded-2xl flex justify-center items-center text-3xl shrink-0">4</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Benar atau Salah</h3>
+                            <p class="text-sm text-slate-500 mb-2">Uji kecepatan analisamu.</p>
+                            <div class="text-xs font-bold text-yellow-500" id="score-g4">Skor Tertinggi: 0</div>
+                        </div>
+                    </button>
+
+                    <button onclick="startGame(5)" class="btn-game bg-slate-800 border-2 border-slate-700 rounded-3xl p-4 flex gap-4 text-left hover:bg-slate-900 md:col-span-2 text-white">
+                        <div class="w-16 h-16 bg-red-500 text-white rounded-2xl flex justify-center items-center text-3xl shrink-0"><i class="fas fa-skull"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-yellow-400">BOS MATEMATIKA</h3>
+                            <p class="text-sm text-slate-300 mb-2">Tantangan akhir, 10 soal dengan waktu!</p>
+                            <div class="text-xs font-bold text-yellow-400" id="score-g5">Skor Tertinggi: 0</div>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- DYNAMIC GAME CONTAINER -->
+            <div id="screen-game-active" class="screen bg-white">
+                <div class="flex flex-col h-full">
+                    <!-- Game Header -->
+                    <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-b border-slate-200">
+                        <button onclick="exitGame()" class="text-slate-500 font-bold hover:text-slate-800"><i class="fas fa-times"></i> Keluar Game</button>
+                        <div class="font-bold text-slate-800" id="active-game-title">Nama Game</div>
+                        <div class="font-bold text-blue-600" id="active-game-score">Skor: 0</div>
+                    </div>
+                    <!-- Game Content Area -->
+                    <div id="game-render-area" class="flex-1 relative overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center bg-slate-50">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. HASIL SCREEN -->
+            <div id="screen-hasil" class="screen bg-slate-50 p-4 md:p-8">
+                <div class="max-w-xl mx-auto w-full text-center">
+                    <h2 class="text-3xl font-black text-slate-800 mb-2">Rapor Petualang 🏆</h2>
+                    
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-8 rounded-3xl shadow-xl text-white my-8 relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 text-8xl opacity-20"><i class="fas fa-star"></i></div>
+                        <h3 class="text-lg font-semibold opacity-90">Total Bintang</h3>
+                        <div class="text-6xl font-black mb-2 text-yellow-300 flex justify-center items-center gap-2">
+                            <span id="hasil-total">0</span> <i class="fas fa-star text-4xl"></i>
+                        </div>
+                        <div id="hasil-predikat" class="inline-block bg-white text-blue-800 px-4 py-1 rounded-full font-bold text-lg mt-2 shadow-sm">
+                            Ayo Belajar Lagi!
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 text-left">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">Rincian Nilai:</h3>
+                        <ul class="space-y-3 font-semibold text-slate-600" id="hasil-list">
+                            <!-- Injected -->
+                        </ul>
+                    </div>
+                    
+                    <button onclick="resetData()" class="text-red-500 font-bold text-sm underline hover:text-red-700">Hapus Semua Data & Mulai Ulang</button>
+                </div>
+            </div>
+
+            <!-- 8. PETUNJUK SCREEN -->
+            <div id="screen-petunjuk" class="screen bg-slate-50 p-4 md:p-8">
+                <div class="max-w-2xl mx-auto w-full">
+                    <h2 class="text-3xl font-black text-slate-800 mb-6">Petualangan Guide 🗺️</h2>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-4 text-slate-700 leading-relaxed space-y-4">
+                        <p>Selamat datang di aplikasi pembelajaran interaktif <strong>Matematika Kelas 5 - Bab 4: Keliling Bangun Datar</strong> (Kurikulum Merdeka).</p>
+                        <p><strong>Cara Penggunaan:</strong></p>
+                        <ol class="list-decimal pl-5 space-y-2">
+                            <li>Mulailah dengan membaca <strong>Buku Materi</strong> untuk memahami konsep keliling segitiga, persegi, dan persegi panjang.</li>
+                            <li>Tonton <strong>Video Interaktif</strong>. Video ini akan memberikan penjelasan dan akan <em>berhenti sejenak</em> untuk memberikan pertanyaan. Jawablah untuk melanjutkan!</li>
+                            <li>Buka <strong>Zona Bermain</strong> dan mainkan 5 permainan yang tersedia. Kumpulkan skor maksimal!</li>
+                            <li>Permainan <em>Misi Matematika</em> memiliki level yang harus diselesaikan secara berurutan.</li>
+                            <li>Cek perkembanganmu di menu <strong>Hasil & Bintang</strong>.</li>
+                        </ol>
+                        <p class="text-sm bg-blue-50 p-3 rounded-xl border border-blue-100 text-blue-800">
+                            <i class="fas fa-save"></i> Progresmu disimpan secara otomatis di peramban ini (LocalStorage).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        
+        <!-- Global Custom Modal Overlay -->
+        <div id="global-modal" class="fixed inset-0 bg-black/60 z-50 hidden justify-center items-center p-4">
+            <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl transform scale-90 transition-transform duration-200" id="global-modal-content">
+                <div id="modal-icon" class="text-6xl mb-4">🔔</div>
+                <h3 id="modal-title" class="text-2xl font-black text-slate-800 mb-2">Judul</h3>
+                <p id="modal-text" class="text-slate-600 mb-6 font-semibold">Pesan</p>
+                <button id="modal-btn" class="btn-game w-full bg-blue-500 text-white font-bold py-3 rounded-xl border-b-4 border-blue-700">OK Mengerti</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAIN JAVASCRIPT -->
+    <script>
+        // --- 1. STATE & STORAGE ---
+        const STORAGE_KEY = 'matematika_kls5_bab4_data';
+        let userState = {
+            name: '',
+            scores: { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0 },
+            levels: 1, // max 3
+            videoCompleted: false
+        };
+        let audioEnabled = true;
+
+        // Sound Effects (Web Audio API synthesis for no external dependencies)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!audioEnabled || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+        const sfx = {
+            correct: () => { playTone(600, 'sine', 0.1); setTimeout(()=>playTone(800, 'sine', 0.2), 100); },
+            wrong: () => { playTone(300, 'sawtooth', 0.3); },
+            click: () => { playTone(400, 'sine', 0.1, 0.05); },
+            win: () => { 
+                playTone(400, 'sine', 0.1); setTimeout(()=>playTone(500, 'sine', 0.1), 100); 
+                setTimeout(()=>playTone(600, 'sine', 0.1), 200); setTimeout(()=>playTone(800, 'sine', 0.4), 300);
+            }
+        };
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('btn-audio');
+            if(audioEnabled) {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.classList.remove('bg-red-500/20', 'text-red-500');
+            } else {
+                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                btn.classList.add('bg-red-500/20', 'text-red-500');
+                if(window.speechSynthesis) window.speechSynthesis.cancel();
+            }
+        }
+
+        // --- 2. INITIALIZATION ---
+        window.onload = () => {
+            loadData();
+            setTimeout(() => {
+                if(userState.name) {
+                    document.getElementById('display-username').innerText = userState.name;
+                    nav('home');
+                } else {
+                    nav('register');
+                }
+            }, 1500);
+            
+            // Resume AudioContext on first interaction
+            document.body.addEventListener('click', () => {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+            }, {once:true});
+        };
+
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if(data) {
+                userState = JSON.parse(data);
+                if(!userState.levels) userState.levels = 1;
+                if(userState.videoCompleted === undefined) userState.videoCompleted = false;
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
+            updateGamesMenuUI();
+        }
+
+        function registerUser() {
+            sfx.click();
+            const name = document.getElementById('input-name').value.trim();
+            if(!name) {
+                showModal('Oops!', 'Tulis namamu dulu ya!', '⚠️');
+                return;
+            }
+            userState.name = name;
+            saveData();
+            document.getElementById('display-username').innerText = name;
+            nav('home');
+        }
+
+        function resetData() {
+            sfx.click();
+            if(confirm("Yakin ingin menghapus semua data?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // --- 3. NAVIGATION & UI ---
+        const screens = ['splash', 'register', 'home', 'materi', 'video', 'games-menu', 'game-active', 'hasil', 'petunjuk'];
+        function nav(target) {
+            sfx.click();
+            
+            // Kunci navigasi permainan jika video belum selesai
+            if(target === 'games-menu' && !userState.videoCompleted) {
+                showModal("Belum Terbuka!", "Kamu harus menonton video pembelajaran sampai selesai terlebih dahulu sebelum bisa bermain.", "🔒");
+                target = 'home';
+            }
+
+            if (target !== 'video') stopVideo(); // Pause video jika keluar dari halamannya
+            
+            screens.forEach(s => {
+                document.getElementById('screen-' + s).classList.remove('active');
+            });
+            document.getElementById('screen-' + target).classList.add('active');
+            
+            const header = document.getElementById('app-header');
+            if(target === 'splash' || target === 'register') {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+
+            if(target === 'home') renderHome();
+            if(target === 'games-menu') updateGamesMenuUI();
+        }
+
+        function renderHome() {
+            const container = document.getElementById('home-main-actions');
+            if(!userState.videoCompleted) {
+                container.innerHTML = `
+                    <button onclick="nav('video')" class="btn-game w-full max-w-sm bg-blue-500 text-white font-black text-2xl py-6 rounded-3xl border-b-8 border-blue-700 shadow-lg flex flex-col items-center justify-center gap-2 hover:bg-blue-600">
+                        <i class="fas fa-play-circle text-5xl mb-2 text-yellow-300"></i>
+                        MULAI BELAJAR
+                    </button>
+                    <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-xl text-sm font-bold mt-2 shadow-sm border border-blue-200">
+                        <i class="fas fa-info-circle mr-1"></i> Tonton video sampai selesai untuk membuka Permainan!
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="nav('games-menu')" class="btn-game w-full max-w-sm bg-yellow-400 text-yellow-900 font-black text-2xl py-6 rounded-3xl border-b-8 border-yellow-600 shadow-lg flex flex-col items-center justify-center gap-2 hover:bg-yellow-500">
+                        <i class="fas fa-gamepad text-5xl mb-2 text-white"></i>
+                        LANJUT PERMAINAN
+                    </button>
+                    <button onclick="nav('video')" class="btn-game w-full max-w-sm bg-white text-blue-700 font-bold text-lg py-3 rounded-2xl border-b-4 border-slate-200 shadow-sm mt-2 hover:bg-blue-50">
+                        <i class="fas fa-redo mr-2"></i> Tonton Ulang Video
+                    </button>
+                `;
+            }
+        }
+
+        function showHasil() {
+            const t = userState.scores;
+            const total = t.g1 + t.g2 + t.g3 + t.g4 + t.g5;
+            document.getElementById('hasil-total').innerText = total;
+            
+            let predikat = "Ayo Belajar Lagi!";
+            let pClass = "text-red-700 bg-red-100";
+            if(total >= 450) { predikat = "Ahli Matematika 🏆"; pClass = "text-yellow-700 bg-yellow-100"; }
+            else if(total >= 400) { predikat = "Hebat! 🌟"; pClass = "text-blue-700 bg-blue-100"; }
+            else if(total >= 300) { predikat = "Bagus, Terus Berlatih! 👍"; pClass = "text-green-700 bg-green-100"; }
+            
+            const predEl = document.getElementById('hasil-predikat');
+            predEl.innerText = predikat;
+            predEl.className = `inline-block px-4 py-1 rounded-full font-bold text-lg mt-2 shadow-sm ${pClass}`;
+
+            document.getElementById('hasil-list').innerHTML = `
+                <li class="flex justify-between"><span>Pilih Jawaban:</span> <span>${t.g1}/100</span></li>
+                <li class="flex justify-between"><span>Pasangkan:</span> <span>${t.g2}/100</span></li>
+                <li class="flex justify-between"><span>Misi Matematika:</span> <span>${t.g3}/100</span></li>
+                <li class="flex justify-between"><span>Benar/Salah:</span> <span>${t.g4}/100</span></li>
+                <li class="flex justify-between"><span>Bos Matematika:</span> <span>${t.g5}/100</span></li>
+            `;
+            nav('hasil');
+        }
+
+        function updateGamesMenuUI() {
+            document.getElementById('score-g1').innerText = `Skor: ${userState.scores.g1}`;
+            document.getElementById('score-g2').innerText = `Skor: ${userState.scores.g2}`;
+            document.getElementById('score-g3').innerText = `Level Terbuka: ${userState.levels}/3 (Skor: ${userState.scores.g3})`;
+            document.getElementById('score-g4').innerText = `Skor: ${userState.scores.g4}`;
+            document.getElementById('score-g5').innerText = `Skor: ${userState.scores.g5}`;
+        }
+
+        // Custom Modal
+        function showModal(title, text, icon, onOk = null) {
+            const m = document.getElementById('global-modal');
+            const mc = document.getElementById('global-modal-content');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal-icon').innerText = icon;
+            
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            setTimeout(() => mc.classList.remove('scale-90'), 10);
+            
+            const btn = document.getElementById('modal-btn');
+            btn.onclick = () => {
+                sfx.click();
+                mc.classList.add('scale-90');
+                setTimeout(() => {
+                    m.classList.add('hidden');
+                    m.classList.remove('flex');
+                    if(onOk) onOk();
+                }, 200);
+            };
+        }
+
+        // --- 4. INTERACTIVE VIDEO ENGINE (SIMULATED) ---
+        const videoScript = [
+            { t: 0, text: "Halo semuanya! Selamat datang di pelajaran Matematika.", emoji: "🧑‍🏫" },
+            { t: 4, text: "Hari ini kita belajar Bab 4: Keliling Bangun Datar.", emoji: "📐" },
+            { t: 9, text: "Keliling adalah jumlah seluruh garis terluar suatu bangun.", emoji: "🚶" },
+            { t: 14, text: "Contohnya Persegi. Ia punya 4 sisi yang sama panjang.", emoji: "🟩" },
+            { t: 19, text: "Jika satu sisinya 5 cm, maka kelilingnya 5+5+5+5 atau 4 x 5 = 20 cm.", emoji: "✍️" },
+            { t: 26, q: true, text: "Sekarang giliranmu! Berapa keliling persegi jika sisinya 7 cm?", opts: ["14 cm", "21 cm", "28 cm"], ans: 2, corr: "Benar! 4 x 7 = 28 cm.", wrg: "Salah. Ingat, persegi punya 4 sisi." },
+            { t: 27, text: "Hebat! Sekarang Persegi Panjang. Rumusnya 2 kali panjang ditambah lebar.", emoji: "🟦" },
+            { t: 34, text: "Terakhir Segitiga. Jumlahkan saja ketiga sisinya! Mudah kan?", emoji: "🔺" },
+            { t: 40, text: "Sampai jumpa di zona permainan!", emoji: "🎮" }
+        ];
+
+        let vidTimer = null;
+        let vidTime = 0;
+        const vidMaxTime = 42; 
+        let vidPlaying = false;
+        let lastPlayedIdx = -1;
+        let currentUtterance = null;
+
+        function startVideo() {
+            document.getElementById('video-start-btn').classList.add('hidden');
+            document.getElementById('video-end-overlay').classList.add('hidden');
+            document.getElementById('video-end-overlay').classList.remove('flex');
+            
+            // Lanjutkan jika belum selesai, atau ulang dari awal jika sudah pernah tamat.
+            if(vidTime >= vidMaxTime) {
+                vidTime = 0; 
+                lastPlayedIdx = -1;
+            }
+
+            vidPlaying = true;
+            document.getElementById('video-subtitle').classList.remove('hidden');
+            document.getElementById('video-visuals').style.opacity = 1;
+            vidLoop();
+            sfx.click();
+        }
+
+        function toggleVideoPlay() {
+            sfx.click();
+            if(document.getElementById('video-overlay').classList.contains('flex')) return; // blocked by quiz
+            if(vidPlaying) {
+                vidPlaying = false;
+                if(window.speechSynthesis) window.speechSynthesis.pause();
+                document.getElementById('video-playpause').innerHTML = '<i class="fas fa-play"></i>';
+            } else {
+                vidPlaying = true;
+                if(window.speechSynthesis) window.speechSynthesis.resume();
+                document.getElementById('video-playpause').innerHTML = '<i class="fas fa-pause"></i>';
+                vidLoop();
+            }
+        }
+
+        function stopVideo() {
+            vidPlaying = false;
+            clearTimeout(vidTimer);
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            
+            // Tampilkan tombol Play hanya jika belum tamat
+            if(vidTime < vidMaxTime) {
+                document.getElementById('video-start-btn').classList.remove('hidden');
+                document.getElementById('video-start-btn').innerHTML = '<i class="fas fa-play ml-2"></i> Lanjutkan';
+            }
+            
+            document.getElementById('video-subtitle').classList.add('hidden');
+            document.getElementById('video-visuals').style.opacity = 0;
+            document.getElementById('video-overlay').classList.add('hidden');
+            document.getElementById('video-overlay').classList.remove('flex');
+            document.getElementById('video-end-overlay').classList.add('hidden');
+            document.getElementById('video-end-overlay').classList.remove('flex');
+        }
+
+        function completeVideo() {
+            vidPlaying = false;
+            clearTimeout(vidTimer);
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            
+            userState.videoCompleted = true;
+            saveData();
+            sfx.win();
+
+            document.getElementById('video-start-btn').classList.add('hidden');
+            document.getElementById('video-end-overlay').classList.remove('hidden');
+            document.getElementById('video-end-overlay').classList.add('flex');
+        }
+
+        function vidLoop() {
+            if(!vidPlaying) return;
+            
+            // Update UI
+            document.getElementById('video-progress').style.width = (vidTime / vidMaxTime * 100) + '%';
+            document.getElementById('video-time').innerText = '00:' + (vidTime < 10 ? '0'+vidTime : vidTime);
+
+            // Check events
+            const event = videoScript.find(e => e.t === vidTime);
+            if(event && videoScript.indexOf(event) > lastPlayedIdx) {
+                lastPlayedIdx = videoScript.indexOf(event);
+                
+                if(event.q) {
+                    // Pause for quiz
+                    vidPlaying = false;
+                    if(window.speechSynthesis) window.speechSynthesis.cancel();
+                    showVideoQuiz(event);
+                    return;
+                } else {
+                    // Show dialog & speak
+                    document.getElementById('video-subtitle').innerText = event.text;
+                    document.getElementById('video-visuals').innerHTML = `<div class="text-9xl animate-float">${event.emoji}</div>`;
+                    
+                    if(audioEnabled && window.speechSynthesis) {
+                        window.speechSynthesis.cancel();
+                        currentUtterance = new SpeechSynthesisUtterance(event.text);
+                        currentUtterance.lang = 'id-ID';
+                        currentUtterance.rate = 1.0;
+                        window.speechSynthesis.speak(currentUtterance);
+                    }
+                }
+            }
+
+            if(vidTime >= vidMaxTime) {
+                completeVideo();
+                return;
+            }
+
+            vidTime++;
+            vidTimer = setTimeout(vidLoop, 1000);
+        }
+
+        function showVideoQuiz(evt) {
+            const ov = document.getElementById('video-overlay');
+            ov.classList.remove('hidden');
+            ov.classList.add('flex');
+            document.getElementById('vo-question').innerText = evt.text;
+            
+            const opts = document.getElementById('vo-options');
+            opts.innerHTML = '';
+            evt.opts.forEach((o, idx) => {
+                const b = document.createElement('button');
+                b.className = "btn-game bg-white text-blue-900 font-bold py-3 px-6 rounded-xl text-lg";
+                b.innerText = o;
+                b.onclick = () => {
+                    if(idx === evt.ans) {
+                        sfx.correct();
+                        showModal("Benar!", evt.corr, "✅", () => {
+                            ov.classList.add('hidden');
+                            ov.classList.remove('flex');
+                            vidPlaying = true;
+                            vidLoop();
+                        });
+                    } else {
+                        sfx.wrong();
+                        showModal("Kurang Tepat", evt.wrg, "❌");
+                    }
+                };
+                opts.appendChild(b);
+            });
+        }
+
+
+        // --- 5. GAMES ENGINE ---
+        let currentGame = 0;
+        let gameScore = 0;
+        let gameStep = 0;
+        let gameData = [];
+
+        function startGame(id) {
+            currentGame = id;
+            gameScore = 0;
+            gameStep = 0;
+            const titles = ["", "Petualangan Pilih Jawaban", "Pasangkan Jawaban", "Misi Matematika", "Benar atau Salah", "Bos Matematika"];
+            document.getElementById('active-game-title').innerText = titles[id];
+            document.getElementById('active-game-score').innerText = `Skor: 0`;
+            nav('game-active');
+            
+            const area = document.getElementById('game-render-area');
+            area.innerHTML = '';
+
+            if(id === 1) initGame1();
+            if(id === 2) initGame2();
+            if(id === 3) initGame3();
+            if(id === 4) initGame4();
+            if(id === 5) initGame5();
+        }
+
+        function exitGame() {
+            sfx.click();
+            nav('games-menu');
+            if(intervalG5) clearInterval(intervalG5);
+        }
+
+        function updateGameScore(val) {
+            gameScore += val;
+            document.getElementById('active-game-score').innerText = `Skor: ${gameScore}`;
+        }
+
+        function finishGame(maxScore) {
+            sfx.win();
+            const finalScore = Math.round((gameScore / maxScore) * 100);
+            
+            // Save if better
+            const key = 'g' + currentGame;
+            if(finalScore > userState.scores[key]) {
+                userState.scores[key] = finalScore;
+                saveData();
+            }
+
+            showModal("Permainan Selesai!", `Luar biasa! Kamu mendapat nilai ${finalScore}.`, "🏆", () => {
+                exitGame();
+            });
+        }
+
+        // ================== GAME 1: PILIH JAWABAN ==================
+        const g1_questions = [
+            { q: "Keliling persegi dengan panjang sisi 8 cm adalah...", o: ["16 cm", "24 cm", "32 cm", "64 cm"], a: 2 },
+            { q: "Sebuah segitiga sama sisi memiliki panjang sisi 10 cm. Berapa kelilingnya?", o: ["20 cm", "30 cm", "100 cm", "15 cm"], a: 1 },
+            { q: "Rumus untuk mencari keliling persegi panjang adalah...", o: ["p + l", "p x l", "4 x s", "2 x (p + l)"], a: 3 },
+            { q: "Persegi panjang memiliki p=12 cm dan l=5 cm. Kelilingnya adalah...", o: ["34 cm", "60 cm", "17 cm", "30 cm"], a: 0 },
+            { q: "Bangun datar yang memiliki 3 sisi disebut...", o: ["Persegi", "Lingkaran", "Segitiga", "Trapesium"], a: 2 }
+        ];
+
+        function initGame1() {
+            renderGame1();
+        }
+
+        function renderGame1() {
+            if(gameStep >= g1_questions.length) {
+                finishGame(5); return;
+            }
+            const area = document.getElementById('game-render-area');
+            const q = g1_questions[gameStep];
+            
+            let html = `
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg w-full max-w-lg text-center animate-pop">
+                    <div class="text-sm font-bold text-slate-400 mb-4">Soal ${gameStep+1} dari ${g1_questions.length}</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6">${q.q}</h3>
+                    <div class="flex flex-col gap-3">
+            `;
+            q.o.forEach((opt, i) => {
+                html += `<button onclick="ansGame1(${i}, ${q.a})" class="btn-game bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold py-4 rounded-xl border-2 border-blue-200 text-lg w-full">${opt}</button>`;
+            });
+            html += `</div></div>`;
+            area.innerHTML = html;
+        }
+
+        function ansGame1(selected, correct) {
+            if(selected === correct) {
+                sfx.correct();
+                updateGameScore(1);
+                gameStep++;
+                renderGame1();
+            } else {
+                sfx.wrong();
+                showModal("Ops!", "Jawaban kurang tepat. Coba lagi ya!", "❌");
+            }
+        }
+
+        // ================== GAME 2: PASANGKAN ==================
+        const g2_pairs = [
+            { l: "Persegi, s=7", r: "28", id: 1 },
+            { l: "Segitiga Sama Sisi, s=9", r: "27", id: 2 },
+            { l: "Persegi Panjang, p=6 l=4", r: "20", id: 3 },
+            { l: "Persegi, s=6", r: "24", id: 4 }
+        ];
+        let g2_sel_L = null;
+        let g2_sel_R = null;
+        let g2_matched = 0;
+
+        function initGame2() {
+            g2_sel_L = null; g2_sel_R = null; g2_matched = 0;
+            // Shuffle
+            const lefts = [...g2_pairs].sort(()=>Math.random()-0.5);
+            const rights = [...g2_pairs].sort(()=>Math.random()-0.5);
+            
+            const area = document.getElementById('game-render-area');
+            let html = `
+                <div class="w-full max-w-2xl bg-white p-6 rounded-3xl shadow-lg animate-pop">
+                    <p class="text-center font-bold text-slate-600 mb-6">Pilih kotak di sebelah kiri, lalu pasangkan dengan jawaban yang tepat di kanan!</p>
+                    <div class="flex justify-between gap-4">
+                        <div class="flex-1 flex flex-col gap-3" id="g2-left">
+                            ${lefts.map(i => `<button onclick="selG2('L', ${i.id}, this)" class="btn-game bg-blue-50 text-blue-900 font-bold py-4 px-2 rounded-xl border-2 border-blue-200">${i.l}</button>`).join('')}
+                        </div>
+                        <div class="flex-1 flex flex-col gap-3" id="g2-right">
+                            ${rights.map(i => `<button onclick="selG2('R', ${i.id}, this)" class="btn-game bg-yellow-50 text-yellow-900 font-bold py-4 px-2 rounded-xl border-2 border-yellow-200">${i.r}</button>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            area.innerHTML = html;
+        }
+
+        function selG2(side, id, btn) {
+            sfx.click();
+            if(btn.disabled) return;
+            
+            // Visual selection
+            const parent = document.getElementById(side === 'L' ? 'g2-left' : 'g2-right');
+            Array.from(parent.children).forEach(c => {
+                if(!c.disabled) c.classList.remove('ring-4', 'ring-green-400');
+            });
+            btn.classList.add('ring-4', 'ring-green-400');
+
+            if(side === 'L') g2_sel_L = {id, btn};
+            if(side === 'R') g2_sel_R = {id, btn};
+
+            // Check match
+            if(g2_sel_L && g2_sel_R) {
+                if(g2_sel_L.id === g2_sel_R.id) {
+                    sfx.correct();
+                    updateGameScore(1);
+                    g2_matched++;
+                    
+                    g2_sel_L.btn.classList.replace('bg-blue-50', 'bg-green-500');
+                    g2_sel_L.btn.classList.replace('text-blue-900', 'text-white');
+                    g2_sel_L.btn.disabled = true;
+                    
+                    g2_sel_R.btn.classList.replace('bg-yellow-50', 'bg-green-500');
+                    g2_sel_R.btn.classList.replace('text-yellow-900', 'text-white');
+                    g2_sel_R.btn.disabled = true;
+                    
+                    g2_sel_L = null; g2_sel_R = null;
+
+                    if(g2_matched === g2_pairs.length) {
+                        setTimeout(() => finishGame(4), 500);
+                    }
+                } else {
+                    sfx.wrong();
+                    // Reset selection visually
+                    setTimeout(() => {
+                        g2_sel_L.btn.classList.remove('ring-4', 'ring-green-400');
+                        g2_sel_R.btn.classList.remove('ring-4', 'ring-green-400');
+                        g2_sel_L = null; g2_sel_R = null;
+                    }, 400);
+                }
+            }
+        }
+
+
+        // ================== GAME 3: MISI MATEMATIKA ==================
+        const g3_missions = [
+            { t: "Level 1: Hutan Segitiga", q: "Taman berbentuk segitiga sama sisi memiliki panjang sisi 15 meter. Berapakah kelilingnya?", a: "45" },
+            { t: "Level 2: Gua Persegi", q: "Paman membuat bingkai persegi. Panjang sisinya 25 cm. Berapa panjang kayu yang dibutuhkan?", a: "100" },
+            { t: "Level 3: Puncak Persegi Panjang", q: "Kebun berukuran panjang 20m dan lebar 10m. Berapa keliling kebun tersebut?", a: "60" }
+        ];
+
+        function initGame3() {
+            renderGame3Map();
+        }
+
+        function renderGame3Map() {
+            const area = document.getElementById('game-render-area');
+            let html = `<div class="text-center w-full max-w-md animate-pop">
+                <h3 class="text-2xl font-black text-slate-800 mb-6">Peta Misi</h3>
+                <div class="flex flex-col gap-6 relative">
+                    <div class="absolute left-1/2 top-0 bottom-0 w-2 bg-slate-200 -ml-1 z-0"></div>
+            `;
+            
+            g3_missions.forEach((m, i) => {
+                const lvl = i + 1;
+                const isUnlocked = userState.levels >= lvl;
+                const isDone = userState.levels > lvl;
+                const bg = isDone ? 'bg-green-500 text-white' : (isUnlocked ? 'bg-blue-500 text-white' : 'bg-slate-300 text-slate-500');
+                const icon = isDone ? '<i class="fas fa-check"></i>' : (isUnlocked ? lvl : '<i class="fas fa-lock"></i>');
+                
+                html += `
+                    <div class="relative z-10 flex flex-col items-center">
+                        <button ${isUnlocked ? `onclick="playMission(${lvl})"` : 'disabled'} class="btn-game w-16 h-16 rounded-full flex justify-center items-center text-2xl font-bold border-4 border-white shadow-lg ${bg}">
+                            ${icon}
+                        </button>
+                        <div class="mt-2 font-bold text-slate-700 bg-white px-3 py-1 rounded-full shadow-sm">${m.t}</div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            area.innerHTML = html;
+            document.getElementById('active-game-score').innerText = `Level: ${userState.levels}/3`;
+        }
+
+        function playMission(lvl) {
+            sfx.click();
+            const idx = lvl - 1;
+            const m = g3_missions[idx];
+            
+            const area = document.getElementById('game-render-area');
+            area.innerHTML = `
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg w-full max-w-md text-center animate-pop">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fas fa-scroll"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">${m.t}</h3>
+                    <p class="text-slate-600 mb-6">${m.q}</p>
+                    <input type="number" id="g3-ans" placeholder="Jawaban (angka saja)" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 mb-6 text-center font-bold text-xl">
+                    <button onclick="checkMission(${lvl}, ${m.a})" class="btn-game w-full bg-blue-500 text-white font-bold py-3 rounded-xl border-b-4 border-blue-700">Kirim Jawaban</button>
+                    <button onclick="renderGame3Map()" class="mt-4 text-slate-500 font-bold hover:text-slate-800">Kembali ke Peta</button>
+                </div>
+            `;
+        }
+
+        function checkMission(lvl, correctAns) {
+            const ans = document.getElementById('g3-ans').value;
+            if(ans == correctAns) {
+                sfx.correct();
+                if(userState.levels === lvl && lvl < 3) {
+                    userState.levels++;
+                    saveData();
+                }
+                updateGameScore(1); // logical score
+                showModal("Misi Berhasil!", "Kamu sangat pintar!", "🌟", () => {
+                    if(lvl === 3) finishGame(3);
+                    else renderGame3Map();
+                });
+            } else {
+                sfx.wrong();
+                showModal("Gagal", "Jawaban salah. Coba hitung lagi perlahan.", "❌");
+            }
+        }
+
+
+        // ================== GAME 4: BENAR ATAU SALAH ==================
+        const g4_stmts = [
+            { q: "Keliling adalah panjang seluruh garis tepi bangun datar.", a: true },
+            { q: "Keliling persegi dengan sisi 5 cm adalah 25 cm.", a: false }, // 20
+            { q: "Persegi panjang dengan p=5 dan l=3 memiliki keliling 16 cm.", a: true }, // 2*(5+3)=16
+            { q: "Rumus keliling persegi panjang adalah panjang x lebar.", a: false },
+            { q: "Segitiga dengan sisi 5, 5, dan 5 memiliki keliling 15.", a: true }
+        ];
+
+        function initGame4() {
+            renderGame4();
+        }
+
+        function renderGame4() {
+            if(gameStep >= g4_stmts.length) { finishGame(5); return; }
+            
+            const area = document.getElementById('game-render-area');
+            const q = g4_stmts[gameStep];
+            
+            area.innerHTML = `
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-lg w-full max-w-lg text-center animate-pop">
+                    <div class="text-sm font-bold text-slate-400 mb-4">Soal ${gameStep+1} / ${g4_stmts.length}</div>
+                    <div class="text-2xl font-black text-slate-800 mb-8 leading-relaxed">"${q.q}"</div>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="ansGame4(true, ${q.a})" class="btn-game flex-1 bg-green-500 text-white font-bold py-6 rounded-2xl border-b-4 border-green-700 text-2xl"><i class="fas fa-check-circle mb-2 block text-4xl"></i>BENAR</button>
+                        <button onclick="ansGame4(false, ${q.a})" class="btn-game flex-1 bg-red-500 text-white font-bold py-6 rounded-2xl border-b-4 border-red-700 text-2xl"><i class="fas fa-times-circle mb-2 block text-4xl"></i>SALAH</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function ansGame4(userAns, trueAns) {
+            if(userAns === trueAns) {
+                sfx.correct();
+                updateGameScore(1);
+            } else {
+                sfx.wrong();
+            }
+            gameStep++;
+            renderGame4();
+        }
+
+
+        // ================== GAME 5: BOS MATEMATIKA ==================
+        const g5_q = [
+            ...g1_questions,
+            { q: "Keliling persegi dengan sisi 12 cm?", o: ["48 cm", "24 cm", "144 cm", "36 cm"], a: 0 },
+            { q: "Persegi panjang p=15, l=10. Keliling?", o: ["25", "150", "50", "30"], a: 2 },
+            { q: "Segitiga sisinya 7, 8, 9. Keliling?", o: ["24", "25", "21", "22"], a: 0 },
+            { q: "Bangun datar dengan 4 sisi sama panjang?", o: ["Persegi Panjang", "Persegi", "Segitiga", "Trapesium"], a: 1 },
+            { q: "Keliling 40, persegi. Sisinya?", o: ["4", "10", "20", "8"], a: 1 }
+        ].sort(() => Math.random() - 0.5).slice(0, 10); // get 10 random
+        
+        let timeLeft = 60;
+        let intervalG5;
+
+        function initGame5() {
+            timeLeft = 90; // 90 seconds
+            intervalG5 = setInterval(() => {
+                timeLeft--;
+                const timerEl = document.getElementById('g5-timer');
+                if(timerEl) timerEl.innerText = `${timeLeft}d`;
+                if(timeLeft <= 0) {
+                    clearInterval(intervalG5);
+                    finishGame(10);
+                }
+            }, 1000);
+            renderGame5();
+        }
+
+        function renderGame5() {
+            if(gameStep >= g5_q.length) {
+                clearInterval(intervalG5);
+                finishGame(10); 
+                return;
+            }
+            
+            const area = document.getElementById('game-render-area');
+            const q = g5_q[gameStep];
+            
+            let html = `
+                <div class="absolute top-4 right-4 bg-red-100 text-red-700 font-bold px-4 py-2 rounded-full border-2 border-red-300 flex items-center gap-2">
+                    <i class="fas fa-clock animate-pulse"></i> <span id="g5-timer">${timeLeft}d</span>
+                </div>
+                <div class="bg-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl w-full max-w-lg text-center animate-pop text-white border-4 border-slate-600">
+                    <div class="text-yellow-400 font-bold mb-4">PERTANYAAN BOS ${gameStep+1}/10</div>
+                    <h3 class="text-xl font-bold mb-6">${q.q}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            `;
+            q.o.forEach((opt, i) => {
+                html += `<button onclick="ansGame5(${i}, ${q.a})" class="btn-game bg-slate-700 hover:bg-slate-600 font-bold py-4 rounded-xl border-2 border-slate-500 text-lg w-full">${opt}</button>`;
+            });
+            html += `</div></div>`;
+            area.innerHTML = html;
+        }
+
+        function ansGame5(selected, correct) {
+            if(selected === correct) {
+                sfx.correct();
+                updateGameScore(1);
+            } else {
+                sfx.wrong();
+            }
+            gameStep++;
+            renderGame5();
+        }
+
+        // --- INTERACTIVE VIDEO DRAG SCRUBBER (EXTRA) ---
+        function seekVideo(e) {
+            if(document.getElementById('video-overlay').classList.contains('flex')) return;
+            const bar = e.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const perc = Math.max(0, Math.min(1, x / rect.width));
+            vidTime = Math.floor(perc * vidMaxTime);
+            lastPlayedIdx = -1; // reset events
+            if(!vidPlaying) toggleVideoPlay();
+        }
+    </script>
+</body>
+</html>
